@@ -17,6 +17,12 @@ class ProyectoPolicy
         return null;
     }
 
+    public function create(User $user): bool
+    {
+        // 🛑 AÑADIDO: Permite a cualquier usuario autenticado crear un proyecto
+        return true; 
+    }
+
     // Quién puede ver el proyecto (dueño o colaborador)
     public function view(User $user, Proyecto $proyecto): bool
     {

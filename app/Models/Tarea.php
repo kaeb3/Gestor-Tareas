@@ -11,4 +11,9 @@ class Tarea extends Model
     {
         return $this->belongsTo(Proyecto::class);
     }
+
+    public function archivos()
+{
+    return $this->hasMany(Archivo::class);
+}
 }

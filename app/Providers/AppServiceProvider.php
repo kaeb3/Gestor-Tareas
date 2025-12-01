@@ -2,23 +2,39 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+// Importa los modelos y la Policy que estás usando
+use App\Models\Proyecto; 
+use App\Models\User; // Usualmente ya importado
+use App\Policies\ProyectoPolicy; 
 
-class AppServiceProvider extends ServiceProvider
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+
+class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * The model to policy mappings for the application.
+     *
+     * @var array<class-string, class-string>
      */
-    public function register(): void
-    {
-        //
-    }
+    protected $policies = [
+        // 🛑 ESTA LÍNEA ES CRUCIAL PARA LA AUTORIZACIÓN 🛑
+        Proyecto::class => ProyectoPolicy::class,
+    ];
 
     /**
-     * Bootstrap any application services.
+     * Register any authentication / authorization services.
      */
     public function boot(): void
     {
-        //
+        // Define aquí cualquier Gate (puerta) o simplemente deja vacío si usas solo Policies
+        // $this->registerPolicies(); // Esta línea es usualmente llamada por el constructor base
+
+        // Opcional: Si quieres definir el Gate de 'admin' aquí en lugar de en la Policy
+        // Gate::before(function (User $user, $ability) {
+        //     if ($user->rol === 'admin') {
+        //         return true;
+        //     }
+        // });
     }
 }

@@ -2,31 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Proyecto;
+use App\Http\Requests\GuardarProyectoRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Log;
 
 class ProyectoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de todos los proyectos del usuario (propios y colaboraciones).
      */
     public function index()
     {
-        /// Resolver problema de N + 1 consultas (Eager loading)
-    $proyectos = Proyecto::with(['dueno', 'colaboradores']) 
-                         // Proyectos creados por el usuario
-                         ->where('user_id', Auth::id()) 
-                         // Proyectos donde el usuario es colaborador
-                         ->orWhereHas('colaboradores', function ($query) { 
-                             $query->where('user_id', Auth::id());
-                         })
-                         ->latest()
-                         ->get();
-                         
-    return view('proyectos.index', compact('proyectos'));
+        $proyectos = Proyecto::with(['dueno', 'colaboradores']) 
+                             ->where('user_id', Auth::id()) 
+                             ->orWhereHas('colaboradores', function ($query) { 
+                                 $query->where('user_id', Auth::id());
+                             })
+                             ->latest()
+                             ->get();
+                             
+        return view('proyectos.index', compact('proyectos'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear un nuevo recurso.
      */
     public function create()
     {
@@ -34,48 +35,42 @@ class ProyectoController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena un recurso recién creado en el almacenamiento.
      */
     public function store(GuardarProyectoRequest $request)
     {
-        // El user_id se asigna automáticamente al proyecto del usuario autenticado
-    $proyecto = Auth::user()->proyectos()->create($request->validated()); 
+        $proyecto = Auth::user()->proyectos()->create($request->validated()); 
 
-    return redirect()->route('proyectos.index')
+        return redirect()->route('proyectos.index')
                          ->with('success', 'Proyecto "' . $proyecto->titulo . '" creado con éxito.');
-
-    return redirect()->route('proyectos.index')
-                     ->with('success', 'Proyecto creado con éxito.');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el recurso especificado.
      */
     public function show(Proyecto $proyecto)
     {
-        // Restringir el acceso si no es dueño  
-    $this->authorize('view', $proyecto);
+        // La autorización del Route Resource ha sido deshabilitada en web.php.
+        $proyecto->load('tareas'); 
 
-    return view('proyectos.edit', compact('proyecto'));
+        return view('proyectos.show', compact('proyecto'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Muestra el formulario para editar el recurso especificado.
      */
     public function edit(Proyecto $proyecto)
     {
-        // Restringir el acceso si no es dueño  
-    $this->authorize('update', $proyecto);
-
-    return view('proyectos.edit', compact('proyecto'));
+        // $this->authorize('update', $proyecto); // Comentado temporalmente
+        return view('proyectos.edit', compact('proyecto'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza el recurso especificado en el almacenamiento.
      */
     public function update(GuardarProyectoRequest $request, Proyecto $proyecto)
     {
-        $this->authorize('update', $proyecto); 
+        // $this->authorize('update', $proyecto); // Comentado temporalmente
 
         $proyecto->update($request->validated());
 
@@ -84,13 +79,13 @@ class ProyectoController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Elimina el recurso especificado del almacenamiento.
      */
     public function destroy(Proyecto $proyecto)
     {
-        $this->authorize('delete', $proyecto); 
+        // $this->authorize('delete', $proyecto); // Comentado temporalmente
 
-        $proyecto->delete(); // Esto realiza el Soft Delete (20 pts)
+        $proyecto->delete(); 
 
         return redirect()->route('proyectos.index')
                          ->with('success', 'Proyecto eliminado (lógicamente) con éxito.');
