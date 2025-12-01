@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('archivos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    $table->id();
+    // Foreign Key a Tarea
+    $table->foreignId('tarea_id')->constrained()->onDelete('cascade');
+    $table->string('nombre_original'); // Nombre que subió el usuario
+    $table->string('ruta'); // La ruta interna y el nombre único guardado por Laravel
+    $table->timestamps();
+});
     }
 
     /**

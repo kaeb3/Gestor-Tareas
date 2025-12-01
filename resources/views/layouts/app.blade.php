@@ -21,9 +21,11 @@
             <!-- Page Heading -->
             @isset($header)
                 <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
+                   <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+    <x-nav-link :href="route('proyectos.index')" :active="request()->routeIs('proyectos.index')">
+        {{ __('Mis Proyectos') }}
+    </x-nav-link>
+</div>
                 </header>
             @endisset
 
